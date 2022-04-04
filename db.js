@@ -1,9 +1,13 @@
+const jsonWebToken = require('jsonwebtoken');
+
 // Contains the Sequelize data models and seeding code
 const Sequelize = require('sequelize');
 const { STRING } = Sequelize;
 const config = {
   logging: false
 };
+
+const SECRET_KEY = process.env.JWT;
 
 if(process.env.LOGGING){
   delete config.logging;
@@ -40,7 +44,8 @@ User.authenticate = async({ username, password })=> {
     }
   });
   if(user){
-    return user.id;
+    const token = JWT.sign({userId: user.id, SECRET_KEY})
+    return token;
   }
   const error = Error('bad credentials');
   error.status = 401;
