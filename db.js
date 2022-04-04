@@ -26,7 +26,6 @@ const User = conn.define("user", {
 
 User.beforeCreate(async (user) => {
 	user.password = await bcrypt.hash(user.password, saltRounds)
-	console.log(user.password)
 })
 
 User.byToken = async (token) => {
@@ -51,10 +50,11 @@ User.authenticate = async ({ username, password }) => {
 	const user = await User.findOne({
 		where: {
 			username,
-			password,
 		},
 	})
-	if (user) {
+	const match = await bcrypt.compare(password, user.password)
+
+	if (match) {
 		const token = JWT.sign({ userId: user.id }, SECRET_KEY)
 		return token
 	}
